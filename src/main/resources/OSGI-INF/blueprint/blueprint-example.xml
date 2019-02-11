@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+            http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+            http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd
+            http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+           ">
+
+	<bean id="tfsToRedmineMapper"
+		class="com.stackabuse.example.TfsToRedmineMapper" />
+
+	<camelContext
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<route>
+			<from uri="jetty:http://0.0.0.0:8082/test" />
+			<inOnly uri="activemq://from_tfs" />
+		</route>
+		<route>
+			<from uri="activemq://from_tfs" />
+			<process ref="tfsToRedmineMapper" />
+			<to uri="activemq://for_redmine" />
+		</route>
+		<route>
+			<from uri="activemq://for_redmine" />
+			<setHeader headerName="Content-Type">
+				<constant>application/json; charset=utf-8</constant>
+			</setHeader>
+			<setHeader headerName="X-Redmine-API-Key">
+				<constant>beb50ea768f5d16c96030a9dbbf3cb5c4a5ccdcd</constant>
+			</setHeader>
+			<toD uri="${header.url}" />
+		</route>
+	</camelContext>
+
+</blueprint>
