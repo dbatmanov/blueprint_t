@@ -68,6 +68,13 @@ public class TfsToRedmineMapper implements Processor {
 						.getString("System.Description");
 				issue.put("description", description);
 			}
+			
+			if (obj.getJSONObject("resource").getJSONObject("fields").has("System.AssignedTo")) {
+				String tfs_assigned_to = obj.getJSONObject("resource").getJSONObject("fields").getString("System.AssignedTo");
+				String login = tfs_assigned_to.substring(tfs_assigned_to.indexOf("\\") + 1, tfs_assigned_to.indexOf(">"));
+			//	issue.put("assigned_to_id", redmine_user_id);
+			}
+
 
 			String redmine_json = new JSONObject().put("issue", issue).toString();
 
