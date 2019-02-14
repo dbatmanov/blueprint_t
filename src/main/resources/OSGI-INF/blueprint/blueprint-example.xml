@@ -10,6 +10,8 @@
 	<bean id="tfsToRedmineMapper"
 		class="com.stackabuse.example.TfsToRedmineMapper" />
 
+<!-- 	<bean id="myBean" class="com.stackabuse.example.MyBean" />  -->
+	
 	<camelContext
 		xmlns="http://camel.apache.org/schema/blueprint">
 		<route>
@@ -31,6 +33,18 @@
 			</setHeader>
 			<toD uri="${header.url}" />
 		</route>
-	</camelContext>
+
+<!-- 		<onException>
+			<exception>org.apache.camel.http.common.HttpOperationFailedException
+			</exception>
+			<onWhen>
+				<method ref="myBean" method="parseException" />
+			</onWhen>
+			<handled>
+				<constant>true</constant>
+			</handled>
+			<to uri="log:redmine_errors" />
+		</onException> -->
+	</camelContext> 
 
 </blueprint>

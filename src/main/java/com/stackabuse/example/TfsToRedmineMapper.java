@@ -1,11 +1,13 @@
 package com.stackabuse.example;
 
+import com.stackabuse.example.InfoServiceRedmine;
 import java.util.HashMap;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.osgi.framework.Bundle;
 
 public class TfsToRedmineMapper implements Processor {
 
@@ -86,7 +88,11 @@ public class TfsToRedmineMapper implements Processor {
 						.getString("System.AssignedTo");
 				String login = tfs_assigned_to.substring(tfs_assigned_to.indexOf("\\") + 1,
 						tfs_assigned_to.indexOf(">"));
-				// issue.put("assigned_to_id", redmine_user_id);
+				Integer redmine_user_id = InfoServiceRedmine.getUserIdByLogin(login);
+				if (redmine_user_id != null){
+					issue.put("assigned_to_id", redmine_user_id);
+				}
+
 			}
 
 			String redmine_json = new JSONObject().put("issue", issue).toString();
