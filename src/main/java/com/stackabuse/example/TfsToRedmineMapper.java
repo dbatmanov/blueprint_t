@@ -1,8 +1,8 @@
 package com.stackabuse.example;
 
 import com.stackabuse.example.InfoServiceRedmine;
-import java.util.HashMap;
 
+import java.util.HashMap;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.JSONArray;
@@ -10,11 +10,6 @@ import org.json.JSONObject;
 import org.osgi.framework.Bundle;
 
 public class TfsToRedmineMapper implements Processor {
-
-	static final int REDMINE_CF_TFS_ID = 293;
-	static final int REDMINE_CF_ACTIVITY = 294;
-	static final int REDMINE_PROJECT_ID = 525;
-	static final String REDMINE_HOST = "http://10.0.63.81";
 
 	private final static HashMap<String, Integer> REDMINE_TRACKER_ID = new HashMap<String, Integer>();
 	static {
@@ -45,29 +40,29 @@ public class TfsToRedmineMapper implements Processor {
 
 			// redmine custom fields
 			JSONArray custom_fields = new JSONArray();
-			
-				// Tfs id
+
+			// Tfs id
 			int tfs_id = obj.getJSONObject("resource").getInt("id");
 			JSONObject cf_tfs_id = new JSONObject();
 
 			cf_tfs_id.put("value", tfs_id);
-			cf_tfs_id.put("id", REDMINE_CF_TFS_ID);
+			cf_tfs_id.put("id", InfoServiceRedmine.REDMINE_CF_TFS_ID);
 			custom_fields.put(cf_tfs_id);
 
-				// Activity
+			// Activity
 			if (obj.getJSONObject("resource").getJSONObject("fields").has("Microsoft.VSTS.Common.Activity")) {
-				String activity = obj.getJSONObject("resource").getJSONObject("fields").getString("Microsoft.VSTS.Common.Activity");
+				String activity = obj.getJSONObject("resource").getJSONObject("fields")
+						.getString("Microsoft.VSTS.Common.Activity");
 				JSONObject activity_json = new JSONObject();
 				activity_json.put("value", activity);
-				activity_json.put("id", REDMINE_CF_ACTIVITY);
+				activity_json.put("id", InfoServiceRedmine.REDMINE_CF_ACTIVITY);
 				custom_fields.put(activity_json);
 			}
-
 
 			// create json for redmine
 			JSONObject issue = new JSONObject();
 
-			issue.put("project_id", REDMINE_PROJECT_ID);
+			issue.put("project_id", InfoServiceRedmine.REDMINE_PROJECT_ID);
 			issue.put("subject", subject);
 			issue.put("custom_fields", custom_fields);
 			issue.put("tracker_id", REDMINE_TRACKER_ID
@@ -89,7 +84,7 @@ public class TfsToRedmineMapper implements Processor {
 				String login = tfs_assigned_to.substring(tfs_assigned_to.indexOf("\\") + 1,
 						tfs_assigned_to.indexOf(">"));
 				Integer redmine_user_id = InfoServiceRedmine.getUserIdByLogin(login);
-				if (redmine_user_id != null){
+				if (redmine_user_id != null) {
 					issue.put("assigned_to_id", redmine_user_id);
 				}
 
@@ -100,7 +95,7 @@ public class TfsToRedmineMapper implements Processor {
 			exchange.getOut().setBody(redmine_json);
 
 			// set message headers
-			String url_create = REDMINE_HOST + "/issues.json";
+			String url_create = InfoServiceRedmine.REDMINE_HOST + "/issues.json";
 			exchange.getOut().setHeader("url", url_create);
 			exchange.getOut().setHeader(Exchange.HTTP_METHOD, "POST");
 		}
